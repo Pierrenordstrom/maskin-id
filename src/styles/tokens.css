@@ -1,0 +1,99 @@
+/* GENERERAD från design-system/tokens.json – ändra där och kör `npm run tokens`. */
+:root {
+  color-scheme: light;
+  --maskin-svart: #000000;
+  --id-gul: #f9a923;
+  --vit: #ffffff;
+  --id-text: #8a5a00;
+  --id-gul-ljus: #fef1d9;
+  --yta: #ffffff;
+  --yta-2: #f1f2f3;
+  --yta-kort: #ffffff;
+  --linje: #d5d9dd;
+  --linje-stark: #7a838c;
+  --text: #000000;
+  --text-sekundar: #4e565e;
+  --pa-gul: #000000;
+  --pa-svart: #ffffff;
+  --fokus: #000000;
+  --status-verifierad: #0f6e8c;
+  --status-verifierad-ljus: #e3f2f6;
+  --status-belanad: #2a2f36;
+  --status-belanad-ljus: #e3e6e9;
+  --status-sparr: #c4322b;
+  --status-sparr-ljus: #fbe9e8;
+  --font-display: "Archivo Expanded", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-text: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-ikon: 16%;
+  --stroke-harfin: 1px;
+  --stroke-falt: 1.5px;
+  --stroke-register: 4px;
+  --stroke-ram: 3px;
+  --skugga-lyft: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="ljust"]) {
+    color-scheme: dark;
+    --maskin-svart: #000000;
+    --id-gul: #f9a923;
+    --vit: #ffffff;
+    --id-text: #f9a923;
+    --id-gul-ljus: #3a2a08;
+    --yta: #000000;
+    --yta-2: #111315;
+    --yta-kort: #16191c;
+    --linje: #2c3136;
+    --linje-stark: #6b737c;
+    --text: #ffffff;
+    --text-sekundar: #a3abb3;
+    --pa-gul: #000000;
+    --pa-svart: #000000;
+    --fokus: #f9a923;
+    --status-verifierad: #5cc8e6;
+    --status-verifierad-ljus: #062a35;
+    --status-belanad: #e3e6e9;
+    --status-belanad-ljus: #2a2f36;
+    --status-sparr: #ff7a70;
+    --status-sparr-ljus: #3a0e0b;
+    --skugga-lyft: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="morkt"] {
+  color-scheme: dark;
+  --maskin-svart: #000000;
+  --id-gul: #f9a923;
+  --vit: #ffffff;
+  --id-text: #f9a923;
+  --id-gul-ljus: #3a2a08;
+  --yta: #000000;
+  --yta-2: #111315;
+  --yta-kort: #16191c;
+  --linje: #2c3136;
+  --linje-stark: #6b737c;
+  --text: #ffffff;
+  --text-sekundar: #a3abb3;
+  --pa-gul: #000000;
+  --pa-svart: #000000;
+  --fokus: #f9a923;
+  --status-verifierad: #5cc8e6;
+  --status-verifierad-ljus: #062a35;
+  --status-belanad: #e3e6e9;
+  --status-belanad-ljus: #2a2f36;
+  --status-sparr: #ff7a70;
+  --status-sparr-ljus: #3a0e0b;
+  --skugga-lyft: 0 12px 32px rgba(0, 0, 0, 0.6);
+}

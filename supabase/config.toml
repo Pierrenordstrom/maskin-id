@@ -1,0 +1,23 @@
+# Minimal konfiguration för Supabase CLI (`supabase start`). Kör `supabase init` för fullständig fil om du vill.
+project_id = "maskin-id"
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/mina-sidor"]
+enable_signup = false
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false

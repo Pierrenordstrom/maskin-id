@@ -1,0 +1,110 @@
+/* MaskinID – komponentstilar. Läses efter tokens.css. Alla klasser har prefixet mid-. */
+body { margin: 0; font-family: var(--font-text); background: var(--yta); color: var(--text); -webkit-font-smoothing: antialiased; }
+.mid-pad { padding: var(--space-5); }
+.mid-rad { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.mid-stack { display: flex; flex-direction: column; gap: var(--space-5); }
+
+/* ---------- ID-ramen: fyra hörn runt det som är identifierat ---------- */
+.mid-ram {
+  --ram-farg: var(--text); --ram-arm: 16px; --ram-tjocklek: var(--stroke-ram, 3px);
+  position: relative; display: inline-block; padding: var(--space-3) var(--space-4);
+  background:
+    linear-gradient(var(--ram-farg), var(--ram-farg)) left top / var(--ram-arm) var(--ram-tjocklek) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) left top / var(--ram-tjocklek) var(--ram-arm) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) right top / var(--ram-arm) var(--ram-tjocklek) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) right top / var(--ram-tjocklek) var(--ram-arm) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) left bottom / var(--ram-arm) var(--ram-tjocklek) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) left bottom / var(--ram-tjocklek) var(--ram-arm) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) right bottom / var(--ram-arm) var(--ram-tjocklek) no-repeat,
+    linear-gradient(var(--ram-farg), var(--ram-farg)) right bottom / var(--ram-tjocklek) var(--ram-arm) no-repeat;
+}
+.mid-ram-stor { --ram-arm: 28px; --ram-tjocklek: 5px; padding: var(--space-5) var(--space-6); }
+.mid-ram-gul { --ram-farg: var(--id-gul); }
+
+/* ---------- Identifierare ---------- */
+.mid-id { font-family: var(--font-mono); font-weight: 500; font-size: 16px; line-height: 24px; letter-spacing: .02em; font-variant-numeric: tabular-nums slashed-zero; }
+.mid-id-prefix { color: var(--text-sekundar); font-weight: 400; margin-right: var(--space-2); }
+.mid-id-stor { font-size: 28px; line-height: 36px; }
+
+/* ---------- Knapp ---------- */
+.mid-knapp {
+  font-family: var(--font-text); font-size: 15px; line-height: 20px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  height: 44px; padding: 0 var(--space-5); border-radius: var(--radius-1);
+  border: 1.5px solid transparent; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.mid-knapp svg { width: 18px; height: 18px; flex: none; }
+.mid-knapp:focus-visible, .mid-falt input:focus-visible, .mid-lank:focus-visible { outline: 2px solid var(--fokus); outline-offset: 2px; }
+.mid-knapp-primar { background: var(--id-gul); color: var(--pa-gul); }
+.mid-knapp-primar:hover { background-image: linear-gradient(rgba(0,0,0,.09), rgba(0,0,0,.09)); }
+.mid-knapp-sekundar { background: var(--text); color: var(--pa-svart); }
+.mid-knapp-kontur { background: transparent; color: var(--text); border-color: var(--linje-stark); }
+.mid-knapp-kontur:hover { border-color: var(--text); }
+.mid-knapp[disabled] { background: var(--yta-2); color: var(--text-sekundar); border-color: var(--linje); cursor: not-allowed; background-image: none; }
+.mid-knapp-liten { height: 36px; padding: 0 var(--space-4); font-size: 14px; }
+.mid-lank { color: var(--id-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+
+/* ---------- Statusmärkning ---------- */
+.mid-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-text); font-size: 13px; line-height: 18px; font-weight: 600;
+  padding: 3px var(--space-2) 3px 6px; border-radius: var(--radius-1); border: 1px solid currentColor; white-space: nowrap;
+}
+.mid-status svg { width: 14px; height: 14px; flex: none; }
+.mid-status-verifierad { color: var(--status-verifierad); background: var(--status-verifierad-ljus); }
+.mid-status-belanad { color: var(--status-belanad); background: var(--status-belanad-ljus); }
+.mid-status-sparr { color: var(--status-sparr); background: var(--status-sparr-ljus); }
+
+/* ---------- Registersök ---------- */
+.mid-sok { display: grid; gap: var(--space-2); max-width: 640px; }
+.mid-etikett { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: .01em; color: var(--text); }
+.mid-hjalp { font-size: 14px; line-height: 20px; color: var(--text-sekundar); margin: 0; }
+.mid-sok-rad { display: flex; gap: var(--space-2); align-items: stretch; }
+.mid-falt { position: relative; flex: 1; min-width: 0; }
+.mid-falt input {
+  box-sizing: border-box; width: 100%; height: 52px; padding: 0 var(--space-4) 0 44px;
+  font-family: var(--font-mono); font-size: 17px; font-weight: 500; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--text); background: var(--yta); border: 1.5px solid var(--linje-stark); border-radius: var(--radius-1);
+}
+.mid-falt input::placeholder { color: var(--text-sekundar); text-transform: none; letter-spacing: 0; font-family: var(--font-text); font-weight: 400; }
+.mid-falt > svg { position: absolute; left: 14px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); color: var(--text-sekundar); }
+.mid-falt.is-aktiv input { border-color: var(--text); }
+.mid-falt.is-aktiv::before { content: ""; position: absolute; inset: -7px; pointer-events: none;
+  --c: var(--text);
+  background:
+    linear-gradient(var(--c),var(--c)) left top / 14px 3px no-repeat, linear-gradient(var(--c),var(--c)) left top / 3px 14px no-repeat,
+    linear-gradient(var(--c),var(--c)) right top / 14px 3px no-repeat, linear-gradient(var(--c),var(--c)) right top / 3px 14px no-repeat,
+    linear-gradient(var(--c),var(--c)) left bottom / 14px 3px no-repeat, linear-gradient(var(--c),var(--c)) left bottom / 3px 14px no-repeat,
+    linear-gradient(var(--c),var(--c)) right bottom / 14px 3px no-repeat, linear-gradient(var(--c),var(--c)) right bottom / 3px 14px no-repeat; }
+.mid-sok-rad .mid-knapp { height: 52px; }
+
+/* ---------- Registerpost ---------- */
+.mid-post { background: var(--yta-kort); border: 1px solid var(--linje); border-top: var(--stroke-register, 4px) solid var(--text); border-radius: var(--radius-0); max-width: 760px; }
+.mid-post-huvud { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; justify-content: space-between; padding: var(--space-5) var(--space-5) var(--space-4); }
+.mid-post-titel { font-family: var(--font-display); font-size: 24px; line-height: 28px; font-weight: 700; margin: 0 0 var(--space-3); }
+.mid-post-falt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--linje); }
+.mid-post-falt > div { padding: var(--space-4) var(--space-5) var(--space-5); border-right: 1px solid var(--linje); }
+.mid-post-falt > div:last-child { border-right: 0; }
+.mid-post-falt dt { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: .01em; color: var(--text-sekundar); margin: 0 0 var(--space-2); }
+.mid-post-falt dd { margin: 0; font-size: 16px; line-height: 24px; }
+.mid-post-falt dd + dd { font-size: 14px; line-height: 20px; color: var(--text-sekundar); }
+.mid-post-falt .mid-status { margin-bottom: var(--space-2); }
+.mid-post-fot { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-5); background: var(--yta-2); border-top: 1px solid var(--linje); font-size: 14px; line-height: 20px; color: var(--text-sekundar); }
+.mid-post-fot .mid-id { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--text); }
+@media (max-width: 620px) { .mid-post-falt { grid-template-columns: 1fr; } .mid-post-falt > div { border-right: 0; border-bottom: 1px solid var(--linje); } .mid-post-falt > div:last-child { border-bottom: 0; } }
+
+/* ---------- Sigill ---------- */
+.mid-sigill { display: block; color: var(--text); }
+.mid-sigill .ring { fill: none; stroke: currentColor; }
+.mid-sigill .skrift { fill: currentColor; font-family: var(--font-display); font-weight: 700; font-size: 15.5px; letter-spacing: .16em; }
+.mid-sigill .id { fill: var(--id-gul); }
+.mid-sigill .ram { fill: currentColor; }
+
+/* ---------- Registerutdrag ---------- */
+.mid-utdrag { background: var(--yta-kort); border: 1px solid var(--linje); border-top: var(--stroke-register, 4px) solid var(--text); max-width: 760px; }
+.mid-utdrag-huvud { display: grid; grid-template-columns: 1fr auto; gap: var(--space-5); align-items: center; padding: var(--space-5); }
+.mid-utdrag-huvud img { height: 28px; width: auto; display: block; margin-bottom: var(--space-4); }
+.mid-utdrag h1 { font-family: var(--font-display); font-size: 32px; line-height: 36px; font-weight: 800; margin: 0 0 var(--space-2); }
+.mid-utdrag-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px var(--space-4); font-size: 14px; line-height: 20px; margin: 0; }
+.mid-utdrag-meta dt { color: var(--text-sekundar); }
+.mid-utdrag-meta dd { margin: 0; }
