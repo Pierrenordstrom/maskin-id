@@ -38,7 +38,10 @@ export const canLiftBlock = (u: UserProfile | null, b: Block) =>
 export const canSeePledgeAmount = (u: UserProfile | null, r: MachineRecord, p: Pledge) =>
   isOwner(u, r) || p.lenderOrganizationId === orgId(u);
 
+export const isAdmin = (u: UserProfile | null) => u?.isAdmin === true;
+
 export const ORG_TYPE_LABEL: Record<UserProfile["organization"]["type"], string> = {
+  registerhallare: "Registerhållare",
   maskinhandlare: "Maskinhandlare",
   maskinagare: "Maskinägare",
   langivare: "Långivare",

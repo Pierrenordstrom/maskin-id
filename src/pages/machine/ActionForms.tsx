@@ -259,6 +259,36 @@ export function TransferForm({ record, onDone, onCancel }: FormProps) {
   );
 }
 
+/** Administratören bekräftar att PIN/serienummer stämmer med maskinens typskylt. */
+export function VerifyForm({ record, onDone, onCancel }: FormProps) {
+  const [note, setNote] = useState("");
+  const s = useSubmit();
+  const m = record.machine;
+  return (
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void s.run(async () => onDone(await api.verifyIdentity(m.id, note.trim() || null), "Identitet verifierad"));
+      }}
+      error={s.error}
+    >
+      <p className="t-brodtext">Bekräfta att uppgifterna stämmer med maskinens typskylt.</p>
+      <dl className="definitioner">
+        <dt>PIN</dt>
+        <dd className={m.pin ? "mid-id" : "t-sekundar"}>{m.pin ?? "Uppgift saknas"}</dd>
+        <dt>Serienummer</dt>
+        <dd className={m.serialNumber ? "mid-id" : "t-sekundar"}>{m.serialNumber ?? "Uppgift saknas"}</dd>
+        <dt>Maskin</dt>
+        <dd>{m.manufacturer} {m.model}{m.modelYear ? `, ${m.modelYear}` : ""}</dd>
+      </dl>
+      <FormField label="Hur kontrollerades uppgifterna?" hint="Visas i historiken, till exempel Kontrollerad på plats i Umeå." optional>
+        <input className="mid-input" value={note} onChange={(e) => setNote(e.target.value)} />
+      </FormField>
+      <Actions busy={s.busy} label="Verifiera identitet" onCancel={onCancel} />
+    </Form>
+  );
+}
+
 /** Bekräftelse för enkla handlingar (avsluta belåning, häv spärr). */
 export function ConfirmForm({
   text,

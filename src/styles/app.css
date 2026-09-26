@@ -118,7 +118,7 @@ a { color: var(--id-text); }
 .handling span { display: block; margin-top: var(--space-1); font-size: 14px; line-height: 20px; color: var(--text-sekundar); }
 
 .formular { max-width: 720px; }
-.formular-rutnat { display: grid; gap: var(--space-4) var(--space-5); grid-template-columns: 1fr 1fr; }
+.formular-rutnat { display: grid; gap: var(--space-4) var(--space-5); grid-template-columns: 1fr 1fr; align-items: start; }
 .formular-rutnat .hel { grid-column: 1 / -1; }
 @media (max-width: 620px) { .formular-rutnat { grid-template-columns: 1fr; } }
 .formular fieldset { border: 0; padding: 0; margin: 0; }
@@ -159,3 +159,4 @@ a { color: var(--id-text); }
 .stack-5 > * + * { margin-top: var(--space-5); }
 .stack-6 > * + * { margin-top: var(--space-6); }
 .stack-7 > * + * { margin-top: var(--space-7); }
+.ikon-inline { width: 14px; height: 14px; vertical-align: -2px; }

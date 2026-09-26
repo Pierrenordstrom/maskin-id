@@ -7,16 +7,21 @@ const root = new URL("..", import.meta.url).pathname;
 const db = new PGlite({ extensions: { pgcrypto } });
 // Stubbar för Supabase-miljön
 await db.exec(`
-  create role anon; create role authenticated;
+  create role anon; create role authenticated; create role service_role;
   create schema auth; create schema extensions;
   create extension pgcrypto schema extensions;
   create table auth.users (instance_id uuid, id uuid primary key, aud text, role text, email text, encrypted_password text,
-    email_confirmed_at timestamptz, raw_app_meta_data jsonb, raw_user_meta_data jsonb, created_at timestamptz, updated_at timestamptz);
+    email_confirmed_at timestamptz, raw_app_meta_data jsonb, raw_user_meta_data jsonb, created_at timestamptz, updated_at timestamptz,
+    last_sign_in_at timestamptz, invited_at timestamptz);
   create table auth.identities (id uuid, user_id uuid, provider_id text, provider text, identity_data jsonb, last_sign_in_at timestamptz, created_at timestamptz, updated_at timestamptz);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
 `);
-const mig = readFileSync(`${root}/migrations/20260926000001_initial_schema.sql`, "utf8").replace("create extension if not exists pgcrypto;", "set search_path = public, extensions;");
-await db.exec(mig);
+// Alla migreringar i ordning.
+const { readdirSync } = await import("node:fs");
+for (const f of readdirSync(`${root}/migrations`).filter((f) => f.endsWith(".sql")).sort()) {
+  const sql = readFileSync(`${root}/migrations/${f}`, "utf8").replace("create extension if not exists pgcrypto;", "set search_path = public, extensions;");
+  await db.exec(sql);
+}
 await db.exec(readFileSync(`${root}/seed.sql`, "utf8"));
 const as = (uid) => db.exec(`select set_config('test.uid', '${uid ?? ""}', false)`);
 const q = async (sql, p) => (await db.query(sql, p)).rows[0];
@@ -70,3 +75,31 @@ const h2 = (await q("select public.get_machine_history('b0000000-0000-4000-8000-
 ok(h2[0].description === "Maskinförsäkring registrerad till 30 sep 2027.", h2[0].description);
 const prof = (await q("select public.my_profile() as r")).r;
 ok(prof.organization.type === "forsakringsgivare", "my_profile");
+
+// ---------- Administration ----------
+await as("c0000000-0000-4000-8000-000000000001"); // ägare, ej admin
+ok((await err("select public.verify_identity('b0000000-0000-4000-8000-000000000005', null)"))?.startsWith("42501"), "ej admin kan inte verifiera");
+ok((await err("select public.admin_list_users()"))?.startsWith("42501"), "ej admin kan inte lista användare");
+ok((await q("select public.my_profile() as r")).r.isAdmin === false, "isAdmin false");
+
+await as("c0000000-0000-4000-8000-000000000005"); // admin
+ok((await q("select public.my_profile() as r")).r.isAdmin === true, "isAdmin true");
+r = (await q("select public.verify_identity('b0000000-0000-4000-8000-000000000005', 'Kontrollerad på plats.') as r")).r;
+ok(r.machine.identityVerified === true, "identitet verifierad");
+ok((await err("select public.verify_identity('b0000000-0000-4000-8000-000000000005', null)"))?.startsWith("22023"), "redan verifierad");
+const h3 = (await q("select public.get_machine_history('b0000000-0000-4000-8000-000000000005') as r")).r;
+ok(h3[0].kind === "identitet_verifierad" && h3[0].sourceName === "MaskinID Sverige AB", "verifiering i historiken");
+const users = (await q("select public.admin_list_users() as r")).r;
+ok(users.length === 5, "admin ser alla användare: " + users.length);
+const org = (await q("select public.admin_create_organization('Ny Leasing AB', '556200-0001', 'langivare') as r")).r;
+ok(org.type === "langivare", "organisation skapad");
+ok((await err("select public.admin_create_organization('Dubblett', '556200-0001', 'langivare')"))?.startsWith("23505"), "dubblett org.nr stoppas");
+ok((await err("select public.admin_create_organization('Fel', '5562000001', 'langivare')"))?.startsWith("22023"), "ogiltigt org.nr");
+
+// Edge Function-flödet: auth-användare finns, profil kopplas av service role
+await db.exec("insert into auth.users (id, email) values ('c0000000-0000-4000-8000-000000000099', 'ny@leasing.se')");
+ok((await err("select public.admin_attach_profile('c0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000099', 'ny@leasing.se', 'Nina Ny', $1, false)", [org.id]))?.startsWith("42501"), "bara admin kan bjuda in");
+const inv = (await q("select public.admin_attach_profile('c0000000-0000-4000-8000-000000000005', 'c0000000-0000-4000-8000-000000000099', 'NY@leasing.se', 'Nina Ny', $1, false) as r", [org.id])).r;
+ok(inv.email === "ny@leasing.se" && inv.organization.name === "Ny Leasing AB", "profil kopplad");
+await as("c0000000-0000-4000-8000-000000000099");
+ok((await q("select public.my_profile() as r")).r.organization.type === "langivare", "inbjuden användare kan agera som långivare");

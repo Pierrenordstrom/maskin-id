@@ -7,10 +7,10 @@ import { createSeed, DEMO_PASSWORD, type MockDatabase } from "../../data/seed";
 import { formatDate } from "../format";
 import { detectIdentifierKind, identifierKey } from "../identifier";
 import * as perm from "../permissions";
-import type { Machine, MachineRecord, RegisterEvent, RegisterExtract, UserProfile } from "../types";
+import type { AdminUser, Machine, MachineRecord, Organization, RegisterEvent, RegisterExtract, UserProfile } from "../types";
 import { ApiError, type MaskinIdApi } from "./types";
 
-const DB_KEY = "maskinid.mock.db.v1";
+const DB_KEY = "maskinid.mock.db.v2";
 const SESSION_KEY = "maskinid.mock.session.v1";
 const LATENCY_MS = 250;
 
@@ -72,7 +72,18 @@ function toProfile(db: MockDatabase, userId: string | null): UserProfile | null 
   if (!u) return null;
   const organization = db.organizations.find((o) => o.id === u.organizationId);
   if (!organization) return null;
-  return { id: u.id, email: u.email, fullName: u.fullName, organization };
+  return { id: u.id, email: u.email, fullName: u.fullName, organization, isAdmin: u.isAdmin === true };
+}
+
+function toAdminUser(db: MockDatabase, userId: string): AdminUser {
+  const u = db.users.find((x) => x.id === userId)!;
+  return { ...toProfile(db, userId)!, lastSignInAt: u.lastSignInAt ?? null, invitedAt: u.invitedAt ?? null };
+}
+
+function requireAdmin(db: MockDatabase): UserProfile {
+  const u = requireUser(db);
+  if (!u.isAdmin) throw new ApiError("saknar_behorighet", "Bara administratörer kan göra den här ändringen.");
+  return u;
 }
 
 function buildRecord(db: MockDatabase, machine: Machine, viewer: UserProfile | null): MachineRecord {
@@ -140,6 +151,8 @@ export const mockApi: MaskinIdApi = {
       throw new ApiError("ogiltig_inmatning", "Fel e-postadress eller lösenord.");
     }
     setSessionUserId(user.id);
+    user.lastSignInAt = nowIso();
+    save(db);
     const p = toProfile(db, user.id)!;
     listeners.forEach((l) => l(p));
     return delay(p);
@@ -331,6 +344,56 @@ export const mockApi: MaskinIdApi = {
 
   async getExtract(extractId) {
     const db = load();
-    return delay(clone(db.extracts.find((x) => x.id === extractId) ?? null));
+    return delay(clone(db.extracts.find((x) => x.id === extractId.toUpperCase()) ?? null));
+  },
+
+  async verifyIdentity(machineId, note) {
+    const db = load();
+    const u = requireAdmin(db);
+    const machine = requireMachine(db, machineId);
+    if (machine.identityVerified) throw new ApiError("ogiltig_inmatning", "Identiteten är redan verifierad.");
+    machine.identityVerified = true;
+    logEvent(db, machine, "identitet_verifierad", `Identiteten verifierades mot typskylt.${note?.trim() ? ` ${note.trim()}` : ""}`, u.organization.name);
+    save(db);
+    return delay(buildRecord(db, machine, u));
+  },
+
+  async listUsers() {
+    const db = load();
+    requireAdmin(db);
+    const users = db.users.map((u) => toAdminUser(db, u.id));
+    users.sort((a, b) => a.organization.name.localeCompare(b.organization.name, "sv") || a.fullName.localeCompare(b.fullName, "sv"));
+    return delay(users);
+  },
+
+  async createOrganization(input) {
+    const db = load();
+    requireAdmin(db);
+    const name = input.name.trim();
+    const orgNr = input.orgNr.trim();
+    if (!name) throw new ApiError("ogiltig_inmatning", "Ange organisationens namn.");
+    if (!/^\d{6}-\d{4}$/.test(orgNr)) throw new ApiError("ogiltig_inmatning", "Ange organisationsnumret som NNNNNN-NNNN.");
+    if (db.organizations.some((o) => o.orgNr === orgNr)) {
+      throw new ApiError("finns_redan", `Det finns redan en organisation med organisationsnummer ${orgNr}.`);
+    }
+    const org: Organization = { id: uid("org"), name, orgNr, type: input.type };
+    db.organizations.push(org);
+    save(db);
+    return delay(clone(org));
+  },
+
+  async inviteUser(input) {
+    const db = load();
+    requireAdmin(db);
+    const email = input.email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw new ApiError("ogiltig_inmatning", "Skriv en giltig e-postadress.");
+    if (!input.fullName.trim()) throw new ApiError("ogiltig_inmatning", "Skriv användarens namn.");
+    if (!db.organizations.some((o) => o.id === input.organizationId)) throw new ApiError("ogiltig_inmatning", "Välj en organisation.");
+    if (db.users.some((u) => u.email === email)) throw new ApiError("finns_redan", `Det finns redan ett konto för ${email}.`);
+    // Mock: ingen e-post skickas. Kontot kan logga in direkt med demolösenordet.
+    const id = uid("u");
+    db.users.push({ id, email, fullName: input.fullName.trim(), organizationId: input.organizationId, isAdmin: input.isAdmin, invitedAt: nowIso() });
+    save(db);
+    return delay(toAdminUser(db, id));
   },
 };

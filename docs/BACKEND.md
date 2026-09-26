@@ -8,9 +8,18 @@ Frontenden är klar och pratar med backend genom ett enda kontrakt, `MaskinIdApi
 | `mockApi` | `src/lib/api/mockApi.ts` | Standard. Exempeldata i webbläsarens localStorage |
 | `supabaseApi` | `src/lib/api/supabaseApi.ts` | När `VITE_DATA_SOURCE=supabase` |
 
-Databasen – tabeller, säkerhet och alla funktioner – finns färdig i
-[`supabase/migrations/20260926000001_initial_schema.sql`](../supabase/migrations/20260926000001_initial_schema.sql)
-och är testad med `npm run test:db`.
+Backend består av:
+
+| Del | Fil |
+| --- | --- |
+| Schema, RLS och registerfunktioner | [`supabase/migrations/20260926000001_initial_schema.sql`](../supabase/migrations/20260926000001_initial_schema.sql) |
+| Administration: registerhållare, administratörer, verifiering, organisationer | [`supabase/migrations/20260926000002_administration.sql`](../supabase/migrations/20260926000002_administration.sql) |
+| Edge Function för inbjudan av användare | [`supabase/functions/invite-user/index.ts`](../supabase/functions/invite-user/index.ts) |
+| Exempeldata (bara test/staging) | [`supabase/seed.sql`](../supabase/seed.sql) |
+
+Allt utom Edge Function är testat med `npm run test:db`.
+
+**Projekt:** `ilutcrqeqgluymgcapqg` – `https://ilutcrqeqgluymgcapqg.supabase.co`
 
 ---
 
@@ -32,11 +41,24 @@ VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_PUBLISHABLE_KEY=<publishable/anon key>
 ```
 
-### Alternativ B – hostat projekt
+### Alternativ B – MaskinIDs hostade projekt
 
-1. Skapa ett projekt på supabase.com (region: EU, t.ex. Stockholm/Frankfurt).
-2. `supabase link --project-ref <ref>` och `supabase db push` – eller klistra in migreringsfilen i SQL Editor.
-3. Kör `supabase/seed.sql` bara i test-/stagingprojekt.
+```bash
+supabase login
+supabase link --project-ref ilutcrqeqgluymgcapqg
+supabase db push                             # kör båda migreringarna
+supabase functions deploy invite-user
+supabase secrets set SITE_URL=https://<din-domän>/mina-sidor
+```
+
+Utan CLI: öppna **SQL Editor** i projektet och kör migreringsfilerna i nummerordning. Edge Function kan då skapas under
+**Edge Functions → Deploy a new function** med innehållet i `supabase/functions/invite-user/index.ts`.
+
+Därefter:
+
+1. Kör `supabase/seed.sql` bara i test-/stagingprojekt – demokontona har ett känt lösenord.
+2. Skapa den första administratören (se avsnitt 4).
+3. Hämta **publishable key** under Project Settings → API Keys och lägg den i `.env` (se `.env.example`).
 4. Under **Authentication → URL Configuration**: lägg till `https://<din-domän>/mina-sidor` som redirect-URL (e-postlänkar).
 5. Stäng av öppen registrering (**Authentication → Providers → Email → Allow new users to sign up: av**). Konton skapas av MaskinID, se avsnitt 4.
 6. Sätt miljövariablerna ovan i hostingtjänsten (Vercel/Netlify) och bygg om.
@@ -101,10 +123,18 @@ machines ──────┼─< ownerships        (until = null → nuvarande
 ## 4. Auth och konton
 
 - Inloggning med **lösenord** (`signInWithPassword`) eller **e-postlänk** (`signInWithOtp`, `shouldCreateUser: false`).
-- En användare måste ha en rad i `profiles` för att kunna göra något. Så skapas ett konto:
-  1. Bjud in användaren: **Authentication → Users → Invite** (eller `supabase.auth.admin.inviteUserByEmail` från en server/Edge Function).
-  2. Skapa profilen: `insert into profiles (id, email, full_name, organization_id) values (…)`.
-- Förslag på nästa steg: en Edge Function `invite-user` som gör båda i ett anrop, åtkomlig för en admin-roll.
+- En användare måste ha en rad i `profiles` för att kunna göra något.
+- **Administratörer** (`profiles.is_admin = true`) bjuder in nya användare i appen under **Administration** (`/admin`).
+  Appen anropar Edge Function `invite-user`, som kontrollerar att anroparen är administratör, skickar inbjudan
+  med `auth.admin.inviteUserByEmail` och kopplar profilen till organisationen via `admin_attach_profile`.
+- **Första administratören** skapas en gång för hand:
+  1. **Authentication → Users → Invite user** med din e-postadress.
+  2. I SQL Editor:
+     ```sql
+     insert into organizations (name, org_nr, type) values ('MaskinID Sverige AB', '<org.nr>', 'registerhallare') returning id;
+     insert into profiles (id, email, full_name, organization_id, is_admin)
+     select id, email, '<Ditt namn>', '<organisationens id>', true from auth.users where email = '<din e-post>';
+     ```
 - Ev. BankID-inloggning kan läggas till senare via en OIDC-leverantör (t.ex. Criipto/Signicat) som Supabase stöder som tredjepartsinloggning.
 
 ---
@@ -142,6 +172,15 @@ registrerade ägaren och långivaren själv.
 | `report_block` | `p_machine_id, p_reason, p_description, p_police_report_number` | ägare, långivare med aktiv belåning, försäkringsgivare med gällande försäkring |
 | `lift_block` | `p_block_id` | organisationen som registrerade spärren |
 | `issue_extract` | `p_machine_id` | alla inloggade |
+| `verify_identity` | `p_machine_id, p_note` | administratör |
+| `admin_create_organization` | `p_name, p_org_nr, p_type` | administratör |
+| `admin_list_users` | – | administratör (returnerar `AdminUser[]`) |
+| `admin_attach_profile` | `p_invited_by, p_user_id, p_email, p_full_name, p_organization_id, p_is_admin` | bara service role (Edge Function) |
+
+### Edge Function `invite-user`
+
+`POST /functions/v1/invite-user` med administratörens JWT och `{ email, fullName, organizationId, isAdmin }`.
+Svarar med `AdminUser`, eller `{ code, message }` med status 400/401/403/409 enligt felkoderna nedan.
 
 Alla skrivande funktioner returnerar den uppdaterade `MachineRecord` (utom `issue_extract` som returnerar `RegisterExtract`)
 och skriver en rad i `register_events`.
@@ -179,7 +218,7 @@ Kör migreringen och `seed.sql` mot [PGlite](https://pglite.dev) (Postgres i Web
 | Fråga | Nuvarande antagande |
 | --- | --- |
 | Ska sökning kräva inloggning? | Nej – sökning och registerpost är öppna, belopp döljs. Ändra genom att ta bort `anon` från `grant execute` |
-| Vem verifierar identitet (`identity_verified`)? | Sätts manuellt i databasen. Behöver en roll/funktion för besiktning eller tillverkarintegration |
+| Vem verifierar identitet (`identity_verified`)? | Administratörer hos registerhållaren via `verify_identity`. Senare: besiktningsföretag eller tillverkarintegration |
 | Belastningsskydd för öppen sökning | Lägg rate limiting framför API:t (t.ex. Edge Function eller Supabase-inställning) |
 | Avgift för registerutdrag | Inte implementerat. Lägg betalning före `issue_extract` |
 | Import av befintliga maskinparker | Gör via CSV-import i en Edge Function som anropar `register_machine` |

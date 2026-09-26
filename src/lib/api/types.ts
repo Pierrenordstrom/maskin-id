@@ -7,6 +7,8 @@ import type {
   RegisterEvent,
   RegisterExtract,
   UserProfile,
+  AdminUser,
+  OrganizationType,
 } from "../types";
 
 /**
@@ -56,6 +58,27 @@ export interface MaskinIdApi {
   /** Utfärdar ett registerutdrag (sparas med ögonblicksbild och loggas i historiken). */
   issueExtract(machineId: string): Promise<RegisterExtract>;
   getExtract(extractId: string): Promise<RegisterExtract | null>;
+
+  // ---------- Administration (kräver isAdmin) ----------
+  /** Markerar maskinens identitet som kontrollerad mot typskylten. */
+  verifyIdentity(machineId: string, note: string | null): Promise<MachineRecord>;
+  listUsers(): Promise<AdminUser[]>;
+  createOrganization(input: CreateOrganizationInput): Promise<Organization>;
+  /** Skickar en inbjudan via e-post och kopplar användaren till en organisation (Edge Function invite-user). */
+  inviteUser(input: InviteUserInput): Promise<AdminUser>;
+}
+
+export interface CreateOrganizationInput {
+  name: string;
+  orgNr: string;
+  type: OrganizationType;
+}
+
+export interface InviteUserInput {
+  email: string;
+  fullName: string;
+  organizationId: string;
+  isAdmin: boolean;
 }
 
 export interface RegisterMachineInput {

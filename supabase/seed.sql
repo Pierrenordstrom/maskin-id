@@ -80,3 +80,21 @@ insert into public.register_events (machine_id, kind, description, source_organi
   ('b0000000-0000-4000-8000-000000000004', 'belaning_registrerad',   'Belåning registrerad.',                           'a0000000-0000-4000-8000-000000000004', '2021-06-02T09:00:00Z'),
   ('b0000000-0000-4000-8000-000000000004', 'sparr_registrerad',      'Maskinen anmäld stulen. Polisens diarienummer 5000-K123456-26.', 'a0000000-0000-4000-8000-000000000002', '2026-09-19T06:50:00Z'),
   ('b0000000-0000-4000-8000-000000000005', 'maskin_registrerad',     'Maskinen registrerades i MaskinID.',              'a0000000-0000-4000-8000-000000000003', '2026-09-10T14:20:00Z');
+
+-- ---------- Registerhållaren och en administratör ----------
+insert into public.organizations (id, name, org_nr, type) values
+  ('a0000000-0000-4000-8000-000000000007', 'MaskinID Sverige AB', '559900-0007', 'registerhallare');
+
+do $$
+declare uid uuid := 'c0000000-0000-4000-8000-000000000005';
+begin
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+                          raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+  values ('00000000-0000-0000-0000-000000000000', uid, 'authenticated', 'authenticated', 'admin@exempel.se',
+          extensions.crypt('maskinid', extensions.gen_salt('bf')), now(),
+          '{"provider":"email","providers":["email"]}', '{"full_name":"Alva Admin"}', now(), now());
+  insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+  values (gen_random_uuid(), uid, uid::text, 'email', jsonb_build_object('sub', uid::text, 'email', 'admin@exempel.se'), now(), now(), now());
+  insert into public.profiles (id, email, full_name, organization_id, is_admin)
+  values (uid, 'admin@exempel.se', 'Alva Admin', 'a0000000-0000-4000-8000-000000000007', true);
+end $$;

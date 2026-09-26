@@ -15,6 +15,7 @@ const RELATION_TEXT = {
   maskinagare: "Maskiner där ni är registrerad ägare.",
   langivare: "Maskiner där ni har en registrerad belåning.",
   forsakringsgivare: "Maskiner där ni har en registrerad försäkring.",
+  registerhallare: "Maskiner där ni är registrerad ägare, långivare eller försäkringsgivare.",
 };
 
 export function DashboardPage() {

@@ -9,6 +9,9 @@ export interface DemoUser {
   email: string;
   fullName: string;
   organizationId: string;
+  isAdmin?: boolean;
+  invitedAt?: string;
+  lastSignInAt?: string;
 }
 
 export interface MockDatabase {
@@ -35,6 +38,7 @@ export function createSeed(): MockDatabase {
     { id: "org-bank", name: "Exempelbanken AB", orgNr: "516100-0004", type: "langivare" },
     { id: "org-fin", name: "Maskinfinans Sverige AB", orgNr: "556100-0005", type: "langivare" },
     { id: "org-fors", name: "Exempelförsäkring AB", orgNr: "516100-0006", type: "forsakringsgivare" },
+    { id: "org-mid", name: "MaskinID Sverige AB", orgNr: "559900-0007", type: "registerhallare" },
   ];
 
   const users: DemoUser[] = [
@@ -42,6 +46,7 @@ export function createSeed(): MockDatabase {
     { id: "u-handlare", email: "handlare@exempel.se", fullName: "Henrik Handlare", organizationId: "org-hand" },
     { id: "u-bank", email: "langivare@exempel.se", fullName: "Lena Långivare", organizationId: "org-bank" },
     { id: "u-fors", email: "forsakring@exempel.se", fullName: "Fredrik Försäkring", organizationId: "org-fors" },
+    { id: "u-admin", email: "admin@exempel.se", fullName: "Alva Admin", organizationId: "org-mid", isAdmin: true },
   ];
 
   const m = (

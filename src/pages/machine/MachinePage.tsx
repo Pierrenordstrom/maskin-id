@@ -12,13 +12,14 @@ import * as perm from "../../lib/permissions";
 import { activeInsurance, machineTitle } from "../../lib/status";
 import { BLOCK_REASON_LABEL, type MachineRecord } from "../../lib/types";
 import { useAsync } from "../../lib/useAsync";
-import { BlockForm, ConfirmForm, InsuranceForm, PledgeForm, TransferForm } from "./ActionForms";
+import { BlockForm, ConfirmForm, InsuranceForm, PledgeForm, TransferForm, VerifyForm } from "./ActionForms";
 
 type Panel =
   | { kind: "belaning" }
   | { kind: "forsakring" }
   | { kind: "sparr" }
   | { kind: "agarbyte" }
+  | { kind: "verifiera" }
   | { kind: "avsluta-belaning"; id: string }
   | { kind: "hav-sparr"; id: string };
 
@@ -27,6 +28,7 @@ const PANEL_TITLE: Record<Panel["kind"], string> = {
   forsakring: "Registrera försäkring",
   sparr: "Registrera spärr",
   agarbyte: "Registrera ägarbyte",
+  verifiera: "Verifiera identitet",
   "avsluta-belaning": "Avsluta belåning",
   "hav-sparr": "Häv spärr",
 };
@@ -74,6 +76,7 @@ export function MachinePage() {
   if (perm.canRegisterPledge(user)) actions.push({ label: "Registrera belåning", icon: "hanglas", panel: { kind: "belaning" } });
   if (perm.canRegisterInsurance(user)) actions.push({ label: "Registrera försäkring", icon: "skold", panel: { kind: "forsakring" } });
   if (perm.canReportBlock(user, r)) actions.push({ label: "Registrera spärr", icon: "varning", panel: { kind: "sparr" } });
+  if (perm.isAdmin(user) && !r.machine.identityVerified) actions.push({ label: "Verifiera identitet", icon: "bock", panel: { kind: "verifiera" } });
 
   const insurance = activeInsurance(r);
 
@@ -270,6 +273,7 @@ export function MachinePage() {
         {panel?.kind === "forsakring" && <InsuranceForm record={r} onDone={done} onCancel={close} />}
         {panel?.kind === "sparr" && <BlockForm record={r} onDone={done} onCancel={close} />}
         {panel?.kind === "agarbyte" && <TransferForm record={r} onDone={done} onCancel={close} />}
+        {panel?.kind === "verifiera" && <VerifyForm record={r} onDone={done} onCancel={close} />}
         {panel?.kind === "avsluta-belaning" && (
           <ConfirmForm
             text="Belåningen markeras som avslutad. Maskinen visas som fri från belåning om inga andra belåningar finns."

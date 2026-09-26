@@ -7,7 +7,8 @@
  */
 
 /** Vilken sorts aktör en organisation är. Styr vad dess användare får registrera. */
-export type OrganizationType = "maskinhandlare" | "maskinagare" | "langivare" | "forsakringsgivare";
+/** `registerhallare` är MaskinID själv – administratörernas organisation. */
+export type OrganizationType = "maskinhandlare" | "maskinagare" | "langivare" | "forsakringsgivare" | "registerhallare";
 
 export interface Organization {
   id: string;
@@ -23,6 +24,14 @@ export interface UserProfile {
   email: string;
   fullName: string;
   organization: Organization;
+  /** Administratör: skapar organisationer, bjuder in användare och verifierar identitet. */
+  isAdmin?: boolean;
+}
+
+/** Användare som administratören ser i Administration. */
+export interface AdminUser extends UserProfile {
+  lastSignInAt: string | null;
+  invitedAt: string | null;
 }
 
 export type MachineType =

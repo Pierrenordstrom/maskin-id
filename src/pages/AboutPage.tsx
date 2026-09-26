@@ -54,6 +54,7 @@ export function AboutPage() {
                 <tr><td>Maskinhandlare</td><td>Maskin, ägarbyte, spärr på egna maskiner</td></tr>
                 <tr><td>Långivare</td><td>Belåning, avslutad belåning, spärr på belånade maskiner</td></tr>
                 <tr><td>Försäkringsgivare</td><td>Försäkring, spärr på försäkrade maskiner</td></tr>
+                <tr><td>Registerhållaren (MaskinID)</td><td>Verifierad identitet, organisationer och användarkonton</td></tr>
                 <tr><td>Alla</td><td>Sökning och registerutdrag (utdrag kräver inloggning)</td></tr>
               </tbody>
             </table>

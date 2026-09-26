@@ -41,6 +41,7 @@ function Header() {
           </NavLink>
           <NavLink to="/sa-fungerar-det">Så fungerar det</NavLink>
           {user && <NavLink to="/mina-sidor">Mina sidor</NavLink>}
+          {user?.isAdmin && <NavLink to="/admin">Administration</NavLink>}
           {user ? (
             <>
               <span className="anvandare">

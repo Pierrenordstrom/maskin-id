@@ -3,6 +3,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import { Layout } from "./components/Layout";
 import { RequireAuth } from "./components/RequireAuth";
 import { AboutPage } from "./pages/AboutPage";
+import { AdminPage } from "./pages/AdminPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ExtractPage, RequestExtractPage } from "./pages/ExtractPages";
 import { HomePage } from "./pages/HomePage";
@@ -30,6 +31,7 @@ export function App() {
             <Route path="logga-in" element={<LoginPage />} />
             <Route path="mina-sidor" element={<RequireAuth><DashboardPage /></RequireAuth>} />
             <Route path="mina-sidor/registrera-maskin" element={<RequireAuth><RegisterMachinePage /></RequireAuth>} />
+            <Route path="admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
             <Route path="sa-fungerar-det" element={<AboutPage />} />
             <Route path="profil" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />

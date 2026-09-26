@@ -11,7 +11,7 @@
 import type { AuthError, PostgrestError, User } from "@supabase/supabase-js";
 import { normalizeIdentifier } from "../identifier";
 import { getSupabase } from "../supabaseClient";
-import type { MachineRecord, Organization, RegisterEvent, RegisterExtract, UserProfile } from "../types";
+import type { AdminUser, MachineRecord, Organization, RegisterEvent, RegisterExtract, UserProfile } from "../types";
 import { ApiError, type ApiErrorCode, type MaskinIdApi } from "./types";
 
 /** Felkoder som RPC-funktionerna kastar med `raise exception using errcode = ...`. */
@@ -147,4 +147,23 @@ export const supabaseApi: MaskinIdApi = {
   issueExtract: (machineId) => rpc<RegisterExtract>("issue_extract", { p_machine_id: machineId }),
 
   getExtract: (extractId) => rpc<RegisterExtract | null>("get_extract", { p_extract_id: extractId }),
+
+  verifyIdentity: (machineId, note) => rpc<MachineRecord>("verify_identity", { p_machine_id: machineId, p_note: note }),
+
+  listUsers: () => rpc<AdminUser[]>("admin_list_users"),
+
+  createOrganization: (i) =>
+    rpc<Organization>("admin_create_organization", { p_name: i.name, p_org_nr: i.orgNr, p_type: i.type }),
+
+  async inviteUser(input) {
+    const { data, error } = await getSupabase().functions.invoke<AdminUser>("invite-user", { body: input });
+    if (error) {
+      // FunctionsHttpError bär svaret från funktionen: { code, message }.
+      const ctx = (error as { context?: Response }).context;
+      const body = ctx ? await ctx.json().catch(() => null) : null;
+      if (body?.code && body?.message) throw new ApiError(body.code as ApiErrorCode, body.message);
+      throw new ApiError("okant", "Inbjudan kunde inte skickas. Försök igen.");
+    }
+    return data as AdminUser;
+  },
 };

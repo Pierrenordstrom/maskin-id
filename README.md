@@ -23,6 +23,7 @@ Appen startar i **demoläge** (`VITE_DATA_SOURCE=mock`). Logga in med något av 
 | `handlare@exempel.se` | Maskinhandel Mitt AB | Maskinhandlare |
 | `langivare@exempel.se` | Exempelbanken AB | Långivare |
 | `forsakring@exempel.se` | Exempelförsäkring AB | Försäkringsgivare |
+| `admin@exempel.se` | MaskinID Sverige AB | Registerhållare, administratör |
 
 Prova att söka på `7KX0L2T4003198` (belånad hjullastare), `1FG5H3R8002741` (grävmaskin) eller `9DM2T7A5000452` (anmäld stulen).
 
@@ -52,6 +53,7 @@ Prova att söka på `7KX0L2T4003198` (belånad hjullastare), `1FG5H3R8002741` (g
 | `/logga-in` | Inloggning med lösenord eller e-postlänk | – |
 | `/mina-sidor` | Översikt över organisationens maskiner | Ja |
 | `/mina-sidor/registrera-maskin` | Registrera ny maskin (ägare och handlare) | Ja |
+| `/admin` | Administration: bjud in användare, skapa organisationer | Administratör |
 | `/sa-fungerar-det` | Om registret, status och roller | – |
 | `/profil` | Levande referens för den grafiska profilen | – |
 
@@ -73,7 +75,8 @@ src/
     format.ts           Datum, tid och belopp enligt profilens tonalitet
   data/seed.ts          Exempeldata för mock-läget
 supabase/
-  migrations/           Schema, RLS och RPC-funktioner
+  migrations/           Schema, RLS och RPC-funktioner (registret + administration)
+  functions/invite-user Edge Function som bjuder in användare
   seed.sql              Samma exempeldata som mock-läget
   tests/                Databastester (PGlite)
 docs/
@@ -85,7 +88,7 @@ docs/
 
 Se **[docs/BACKEND.md](docs/BACKEND.md)**. Kortversion:
 
-1. Skapa ett Supabase-projekt och kör `supabase db push` (eller klistra in migreringen i SQL Editor).
+1. `supabase link --project-ref ilutcrqeqgluymgcapqg`, `supabase db push` och `supabase functions deploy invite-user`.
 2. Kopiera `.env.example` till `.env`, sätt `VITE_DATA_SOURCE=supabase` och fyll i URL och publishable key.
 3. Starta om `npm run dev`. Ingen frontendkod behöver ändras.
 

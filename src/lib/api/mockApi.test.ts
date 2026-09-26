@@ -63,4 +63,25 @@ describe("mockApi", () => {
     expect(ex.id).toMatch(/^RU-\d{4}-\d{4}-\d+$/);
     expect((await mockApi.getExtract(ex.id))?.snapshot.machine.registerNumber).toBe("MID-2026-0048812");
   });
+
+  it("administration: bara admin verifierar, skapar organisationer och bjuder in", async () => {
+    await mockApi.signInWithPassword("agare@exempel.se", DEMO_PASSWORD);
+    await expect(mockApi.verifyIdentity("m-5", null)).rejects.toMatchObject({ code: "saknar_behorighet" });
+    await expect(mockApi.listUsers()).rejects.toMatchObject({ code: "saknar_behorighet" });
+
+    const admin = await mockApi.signInWithPassword("admin@exempel.se", DEMO_PASSWORD);
+    expect(admin.isAdmin).toBe(true);
+    const r = await mockApi.verifyIdentity("m-5", "Kontrollerad på plats.");
+    expect(r.machine.identityVerified).toBe(true);
+    await expect(mockApi.verifyIdentity("m-5", null)).rejects.toMatchObject({ code: "ogiltig_inmatning" });
+
+    const org = await mockApi.createOrganization({ name: "Ny Leasing AB", orgNr: "556200-0001", type: "langivare" });
+    await expect(mockApi.createOrganization({ name: "X", orgNr: "556200-0001", type: "langivare" })).rejects.toMatchObject({ code: "finns_redan" });
+    const invited = await mockApi.inviteUser({ email: "Ny@Leasing.se", fullName: "Nina Ny", organizationId: org.id, isAdmin: false });
+    expect(invited.email).toBe("ny@leasing.se");
+    expect((await mockApi.listUsers()).some((u) => u.email === "ny@leasing.se")).toBe(true);
+
+    const nina = await mockApi.signInWithPassword("ny@leasing.se", DEMO_PASSWORD);
+    expect(nina.organization.type).toBe("langivare");
+  });
 });
