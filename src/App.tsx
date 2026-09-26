@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { Layout } from "./components/Layout";
 import { RequireAuth } from "./components/RequireAuth";
@@ -13,10 +13,13 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterMachinePage } from "./pages/RegisterMachinePage";
 import { SearchPage } from "./pages/SearchPage";
 
+/** Hash-routing används i den fristående demobyggnaden (npm run build:demo), annars vanliga URL:er. */
+const Router = import.meta.env.VITE_ROUTER === "hash" ? HashRouter : BrowserRouter;
+
 export function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
@@ -32,7 +35,7 @@ export function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
 }

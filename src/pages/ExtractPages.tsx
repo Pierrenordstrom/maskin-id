@@ -104,10 +104,12 @@ export function ExtractPage() {
           </Notice>
         )}
         <div className="mid-rad">
-          <button className="mid-knapp mid-knapp-sekundar" onClick={() => window.print()}>
-            <Icon name="skrivare" />
-            Skriv ut eller spara som PDF
-          </button>
+          {import.meta.env.VITE_ROUTER !== "hash" && (
+            <button className="mid-knapp mid-knapp-sekundar" onClick={() => window.print()}>
+              <Icon name="skrivare" />
+              Skriv ut eller spara som PDF
+            </button>
+          )}
           <Link className="mid-knapp mid-knapp-kontur" to={`/maskin/${e.machineId}`}>
             <Icon name="pil-vanster" />
             Till registerposten

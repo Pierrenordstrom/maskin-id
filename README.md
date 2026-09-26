@@ -6,9 +6,13 @@ Det här repot innehåller hela frontenden (React + TypeScript + Vite) byggd eft
 
 ## Kom igång
 
+Kräver [Node.js](https://nodejs.org) 20.19 eller senare.
+
 ```bash
+git clone https://github.com/Pierrenordstrom/maskin-id.git
+cd maskin-id
 npm install
-npm run dev          # http://localhost:5173
+npm run dev          # öppna http://localhost:5173
 ```
 
 Appen startar i **demoläge** (`VITE_DATA_SOURCE=mock`). Logga in med något av demokontona – lösenord `maskinid`:
@@ -29,6 +33,7 @@ Prova att söka på `7KX0L2T4003198` (belånad hjullastare), `1FG5H3R8002741` (g
 | `npm run dev` | Utvecklingsserver |
 | `npm run build` | Typkontroll och produktionsbygge till `dist/` |
 | `npm run preview` | Förhandsgranska bygget |
+| `npm run build:demo` | Fristående demo som en enda HTML-fil (`dist-demo/maskinid-demo.html`) – mock-data, hash-routing |
 | `npm run lint` | Oxlint |
 | `npm run typecheck` | TypeScript |
 | `npm test` | Enhetstester (Vitest): format, identifierare, mock-backend |
@@ -54,8 +59,8 @@ Prova att söka på `7KX0L2T4003198` (belånad hjullastare), `1FG5H3R8002741` (g
 
 ```
 design-system/          Exporterad grafisk profil: tokens.json, profilbok och originalstilar
-public/logo/            Logotyper (vektorbanor ur MaskinID.eps) – ritas aldrig om
-public/fonts/           Archivo, Archivo Expanded, IBM Plex Mono
+src/assets/logo/        Logotyper (vektorbanor ur MaskinID.eps) – ritas aldrig om
+src/assets/fonts/       Archivo, Archivo Expanded, IBM Plex Mono
 src/
   styles/               tokens.css (genererad), components.css (mid-*-klasser), app.css (layout)
   components/           IdFrame, StatusBadge, LookupField, RecordCard, Seal, RegisterExtractHeader, Layout …

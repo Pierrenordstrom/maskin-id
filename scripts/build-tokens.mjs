@@ -20,6 +20,7 @@ for (const s of tokens.shadow.tokens) {
   morkt.push(`  --${s.name}: ${s.value[dark]};`);
 }
 
+// "light"/"dark" stöds också, för värdmiljöer (t.ex. claude.ai) som sätter data-theme själva.
 const darkBlock = ["  color-scheme: dark;", ...morkt];
 const css = `/* GENERERAD från design-system/tokens.json – ändra där och kör \`npm run tokens\`. */
 :root {
@@ -28,12 +29,13 @@ ${ljust.join("\n")}
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="${light}"]) {
+  :root:not([data-theme="${light}"]):not([data-theme="light"]) {
 ${darkBlock.map((l) => "  " + l).join("\n")}
   }
 }
 
-:root[data-theme="${dark}"] {
+:root[data-theme="${dark}"],
+:root[data-theme="dark"] {
 ${darkBlock.join("\n")}
 }
 `;

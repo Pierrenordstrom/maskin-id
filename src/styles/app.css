@@ -145,11 +145,11 @@ a { color: var(--id-text); }
 
 /* ---------- Logotyp per tema: negativt ordmärke på mörk botten ---------- */
 .logo-morkt { display: none !important; }
-:root[data-theme="morkt"] .logo-ljust { display: none !important; }
-:root[data-theme="morkt"] .logo-morkt { display: block !important; }
+:root:is([data-theme="morkt"], [data-theme="dark"]) .logo-ljust { display: none !important; }
+:root:is([data-theme="morkt"], [data-theme="dark"]) .logo-morkt { display: block !important; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="ljust"]) .logo-ljust { display: none !important; }
-  :root:not([data-theme="ljust"]) .logo-morkt { display: block !important; }
+  :root:not([data-theme="ljust"]):not([data-theme="light"]) .logo-ljust { display: none !important; }
+  :root:not([data-theme="ljust"]):not([data-theme="light"]) .logo-morkt { display: block !important; }
 }
 
 /* ---------- Vertikal rytm – sist i filen så att den vinner över elementens egna marginaler ---------- */

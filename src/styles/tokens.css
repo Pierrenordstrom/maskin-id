@@ -45,7 +45,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="ljust"]) {
+  :root:not([data-theme="ljust"]):not([data-theme="light"]) {
     color-scheme: dark;
     --maskin-svart: #000000;
     --id-gul: #f9a923;
@@ -72,7 +72,8 @@
   }
 }
 
-:root[data-theme="morkt"] {
+:root[data-theme="morkt"],
+:root[data-theme="dark"] {
   color-scheme: dark;
   --maskin-svart: #000000;
   --id-gul: #f9a923;

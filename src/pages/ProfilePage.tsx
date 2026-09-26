@@ -1,4 +1,10 @@
 import tokens from "../../design-system/tokens.json";
+import appikonGul from "../assets/logo/maskinid-appikon-gul.svg";
+import appikon from "../assets/logo/maskinid-appikon.svg";
+import ordmarkeNegativ from "../assets/logo/maskinid-ordmarke-negativ.svg";
+import ordmarke from "../assets/logo/maskinid-ordmarke.svg";
+import symbolNegativ from "../assets/logo/maskinid-symbol-negativ.svg";
+import symbol from "../assets/logo/maskinid-symbol.svg";
 import { IdFrame, IdNumber } from "../components/IdFrame";
 import { Icon, type IconName } from "../components/Icon";
 import { Seal } from "../components/Seal";
@@ -9,12 +15,12 @@ import { StatusBadge } from "../components/StatusBadge";
  * Källan är design-system/ (exporterad från MaskinIDs grafiska profil).
  */
 const LOGOS = [
-  { file: "maskinid-ordmarke.svg", text: "Primärt ordmärke, ljus botten", dark: false },
-  { file: "maskinid-ordmarke-negativ.svg", text: "Negativt ordmärke, mörk botten", dark: true },
-  { file: "maskinid-symbol.svg", text: "Symbolen, ljus botten", dark: false },
-  { file: "maskinid-symbol-negativ.svg", text: "Symbolen, mörk botten", dark: true },
-  { file: "maskinid-appikon.svg", text: "Appikon", dark: false },
-  { file: "maskinid-appikon-gul.svg", text: "Appikon, gul", dark: false },
+  { src: ordmarke, wordmark: true, text: "Primärt ordmärke, ljus botten", dark: false },
+  { src: ordmarkeNegativ, wordmark: true, text: "Negativt ordmärke, mörk botten", dark: true },
+  { src: symbol, wordmark: false, text: "Symbolen, ljus botten", dark: false },
+  { src: symbolNegativ, wordmark: false, text: "Symbolen, mörk botten", dark: true },
+  { src: appikon, wordmark: false, text: "Appikon", dark: false },
+  { src: appikonGul, wordmark: false, text: "Appikon, gul", dark: false },
 ];
 
 const ICONS: IconName[] = ["bock", "hanglas", "varning", "sok", "nedladdning", "dokument", "skold", "byt", "plus", "skrivare"];
@@ -32,8 +38,8 @@ export function ProfilePage() {
         <h2 className="t-rubrik-2">Logotyper</h2>
         <div className="handlingar">
           {LOGOS.map((l) => (
-            <figure key={l.file} className="panel stack-3" style={{ margin: 0, background: l.dark ? "var(--maskin-svart)" : "var(--vit)" }}>
-              <img src={`/logo/${l.file}`} alt="" style={{ height: l.file.includes("ordmarke") ? 32 : 64, width: "auto" }} />
+            <figure key={l.text} className="panel stack-3" style={{ margin: 0, background: l.dark ? "var(--maskin-svart)" : "var(--vit)" }}>
+              <img src={l.src} alt="" style={{ height: l.wordmark ? 32 : 64, width: "auto" }} />
               <figcaption className="t-liten" style={{ color: l.dark ? "#a3abb3" : "#4e565e" }}>{l.text}</figcaption>
             </figure>
           ))}
